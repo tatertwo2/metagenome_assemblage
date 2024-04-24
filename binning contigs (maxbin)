@@ -1,0 +1,44 @@
+#!/bin/bash
+##
+## example-array.slurm.sh: submit an array of jobs with a varying parameter
+##
+## Lines starting with #SBATCH are read by Slurm. Lines starting with ## are comments.
+## All other lines are read by the shell.
+##
+##SBATCH --account=priority-stephanieewing        #specify the account to use
+#SBATCH --job-name=anvio            # job name
+#SBATCH --partition=unsafe              # queue partition to run the job in
+#SBATCH --nodes=1                       # number of nodes to allocate
+#SBATCH --ntasks-per-node=1             # number of descrete tasks - keep at one except for MPI
+#SBATCH --cpus-per-task=2              # number of cores to allocate
+#SBATCH --mem=300G                   # 2000 MB of Memory allocated; set --mem with care
+#SBATCH --time=6-00:00:00                 # Maximum job run time
+##SBATCH --array=1-3                  # Number of jobs in array
+#SBATCH --output=example-%j.out
+#SBATCH --error=example-%j.err
+# Define the directory where reads files are located
+reads_directory="/home/p21r674/amazon_space/COA_6092/6092_sickle/WT/"
+
+# Define the reads files
+reads_files=(
+    "${reads_directory}WT_02_15_20230725_A2_6092_S9_L001_R1.sickle.fastq"
+    "${reads_directory}WT_02_15_20230725_A2_6092_S9_L001_R2.sickle.fastq"
+    "${reads_directory}WT_02_30_20230725_B2_6092_S10_L001_R1.sickle.fastq"
+    "${reads_directory}WT_02_30_20230725_B2_6092_S10_L001_R2.sickle.fastq"
+    "${reads_directory}WT_03_15_20230725_C2_6092_S11_L001_R1.sickle.fastq"
+    "${reads_directory}WT_03_15_20230725_C2_6092_S11_L001_R2.sickle.fastq"
+    "${reads_directory}WT_03_30_20230725_D2_6092_S12_L001_R1.sickle.fastq"
+    "${reads_directory}WT_03_30_20230725_D2_6092_S12_L001_R2.sickle.fastq"
+    "${reads_directory}WT_05_15_20230725_G2_6092_S15_L001_R1.sickle.fastq"
+    "${reads_directory}WT_05_15_20230725_G2_6092_S15_L001_R2.sickle.fastq"
+    "${reads_directory}WT_05_30_20230725_H2_6092_S16_L001_R1.sickle.fastq"
+    "${reads_directory}WT_05_30_20230725_H2_6092_S16_L001_R2.sickle.fastq"
+    "${reads_directory}WT_06_30_20230725_F2_6092_S14_L001_R1.sickle.fastq"
+    "${reads_directory}WT_06_30_20230725_F2_6092_S14_L001_R2.sickle.fastq"
+)
+
+# Loop through reads files and run MaxBin on each
+for file in "${reads_files[@]}"; do
+    echo "Running MaxBin on $file"
+    run_MaxBin.pl -contig "${reads_directory}WT_megahit/final.contigs.fa" -reads "$file" -out "/home/p21r674/amazon_space/COA_6092/6092_sickle/WT/WT_Maxbin/maxbin_output_$(basename "$file" .sickle.fastq)"
+done
