@@ -1,0 +1,53 @@
+#!/bin/bash
+##
+## example-array.slurm.sh: submit an array of jobs with a varying parameter
+##
+## Lines starting with #SBATCH are read by Slurm. Lines starting with ## are comments.
+## All other lines are read by the shell.
+##
+##SBATCH --account=priority-stephanieewing        #specify the account to use
+#SBATCH --job-name=anvio            # job name
+#SBATCH --partition=unsafe              # queue partition to run the job in
+#SBATCH --nodes=1                       # number of nodes to allocate
+#SBATCH --ntasks-per-node=1             # number of descrete tasks - keep at one except for MPI
+#SBATCH --cpus-per-task=2              # number of cores to allocate
+#SBATCH --mem=30G                   # 2000 MB of Memory allocated; set --mem with care
+#SBATCH --time=1-00:00:00                 # Maximum job run time
+##SBATCH --array=1-3                  # Number of jobs in array
+#SBATCH --output=example-%j.out
+#SBATCH --error=example-%j.err
+
+## Run 'man sbatch' for more information on the options above.
+conda activate anvio-dev
+cd /home/p21r674/amazon_space/COA_6092/6092_sickle/CN_05_15_sickle_megahit_worked/megahit_out
+
+#fixes the fasta file names, required for anvio.
+for i in *.fasta; 
+do anvi-script-reformat-fasta "$i" -o "$i".fixed.fa --simplify-names;
+done;
+
+#generates the contigs databases.
+for i in *fixed.fa; 
+do anvi-gen-contigs-database -f "$i" -o "$i".db;
+done;
+
+#creates a contigs database.
+for i in *db; 
+do anvi-run-hmms -c "$i"; 
+done;
+
+#run single copy marker taxonomy.
+for i in *db; 
+do anvi-run-scg-taxonomy -c "$i" --min-percent-identity 70; 
+done;
+
+#estimate the taxonomic association of ribosomal markers, prints the output to a file with extension 'taxonony'.
+for i in *db; 
+do anvi-estimate-scg-taxonomy -c "$i" -o "$i".taxonomy --just-do-it; 
+done;
+
+#estimate the completion, redundancy of the genomes, prints the output to a file with extension 'complete'.
+for i in *db; 
+do anvi-estimate-genome-completeness -c "$i" -o "$i".complete; 
+done;
+## Run 'man sbatch' for more information on the options above.
