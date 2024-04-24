@@ -1,0 +1,27 @@
+#!/bin/bash
+## example-array.slurm.sh: submit an array of jobs with a varying parameter
+##
+## Lines starting with #SBATCH are read by Slurm. Lines starting with ## are comments.
+## All other lines are read by the shell.
+##
+##SBATCH --account=priority-stephanieewing        #specify the account to use
+#SBATCH --job-name=megahit            # job name
+#SBATCH --partition=unsafe              # queue partition to run the job in
+#SBATCH --nodes=1                       # number of nodes to allocate
+#SBATCH --ntasks-per-node=1             # number of descrete tasks - keep at one except for MPI
+#SBATCH --cpus-per-task=24              # number of cores to allocat
+#SBATCH --mem=400G                     # 2000 MB of Memory allocated; set --mem with care
+#SBATCH --time=6-00:00:00                 # Maximum job run time
+##SBATCH --array=1-3                  # Number of jobs in array
+#SBATCH --output=example-%j.out
+#SBATCH --error=example-%j.err
+#!/bin/bash
+
+# Move to the directory containing input reads
+cd /home/p21r674/amazon_space/COA_6092/6092_sickle/CS
+
+# Perform quality control on input reads (optional)
+# Example: Run FastQC or Trimmomatic for quality assessment and trimming
+
+# Run MEGAHIT assembly with optimized parameters
+megahit --memory 0.9 -t 24 -1 CS_125_15_20230627_A3_6092_S17_L001_R1.sickle.fastq,CS_125_30_20230627_B3_6092_S18_L001_R1.sickle.fastq,CS_137_15_20230627_E3_6092_S21_L001_R1.sickle.fastq,CS_137_30_20230627_F3_6092_S22_L001_R1.sickle.fastq,CS_150_15_20230627_C3_6092_S19_L001_R1.sickle.fastq,CS_150_30_20230627_D3_6092_S20_L001_R1.sickle.fastq,CS_220_15_20230627_G3_6092_S23_L001_R1.sickle.fastq,CS_220_30_20230627_H3_6092_S24_L001_R1.sickle.fastq -2 CS_125_15_20230627_A3_6092_S17_L001_R2.sickle.fastq,CS_125_30_20230627_B3_6092_S18_L001_R2.sickle.fastq,CS_137_15_20230627_E3_6092_S21_L001_R2.sickle.fastq,CS_137_30_20230627_F3_6092_S22_L001_R2.sickle.fastq,CS_150_15_20230627_C3_6092_S19_L001_R2.sickle.fastq,CS_150_30_20230627_D3_6092_S20_L001_R2.sickle.fastq,CS_220_15_20230627_G3_6092_S23_L001_R2.sickle.fastq,CS_220_30_20230627_H3_6092_S24_L001_R2.sickle.fastq -o CS_megahit
